@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Invasion</title>
+  </head>
+  <body>
+    <h1>Invasion</h1>
+
+    <script type="text/javascript" charset="utf-8">
+      (function(window, document) {
+        var url = document.location.pathname;
+        var id = url.split("/join/")[1];
+        var ws = new WebSocket("ws://localhost:8080/ws/"+id);
+        ws.addEventListener("message",function(event) {
+          window.console.log(event.data);
+        });
+        ws.addEventListener("open",function(event) {
+          ws.send("luiz");
+        });
+      }(window, document));
+    </script>
+  </body>
+</html>
