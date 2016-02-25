@@ -13,8 +13,11 @@ type Code int
 const (
 	Join Code = iota
 	Leave
+	Disconnect
+	ChatMessage
 	SetName
 
+	ErrorFormat
 	ErrorInvalidCode
 )
 

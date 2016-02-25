@@ -5,18 +5,35 @@
   </head>
   <body>
     <h1>Invasion</h1>
+    <div>
+      <textarea id="chat-log" rows="8" cols="40" disabled></textarea>
+      <input type="text" name="message" id="chat" placeholder="type your msg...">
+    </div>
 
     <script type="text/javascript" charset="utf-8">
       (function(window, document) {
         var url = document.location.pathname;
         var id = url.split("/join/")[1];
         var ws = new WebSocket("ws://localhost:8080/ws/"+id);
+
+        var log = document.getElementById("chat-log");
+
         ws.addEventListener("message",function(event) {
-          window.console.log(event.data);
+          log.value += event.data + "\n";
         });
+
         ws.addEventListener("open",function(event) {
-          ws.send("luiz");
+          ws.send("0 ");
         });
+
+        var chat = document.getElementById("chat");
+        chat.addEventListener("keyup", function(event) {
+          if (event.keyCode == 13 && chat.value.length != 0) {
+            ws.send("3 " + chat.value);
+            chat.value = "";
+          }
+        });
+
       }(window, document));
     </script>
   </body>

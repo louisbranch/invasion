@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/luizbranco/invasion/internal/client"
+	"github.com/luizbranco/invasion/internal/message"
 	"github.com/luizbranco/invasion/internal/server"
 	"github.com/luizbranco/invasion/internal/views"
 
@@ -11,17 +13,18 @@ import (
 )
 
 func Handler(s *server.Server, conn *websocket.Conn) {
-	//p := player.New(conn)
-	//s.In <- message.ClientMessage{ClientCode: message.ClientJoin, Sender: p}
-	var msg = make([]byte, 512) //FIXME msg limit
+	clt := client.NewWsClient(conn)
 	for {
-		_, err := conn.Read(msg)
+		var buf = make([]byte, 512) //FIXME msg limit
+		msg := message.Message{Client: clt}
+		_, err := conn.Read(buf)
 		if err != nil {
-			// leave msg
+			msg.Code = message.Disconnect
+			s.Msg <- msg
 			break
 		}
-
-		// parse msg
+		msg.UnmarshalText(buf)
+		s.Msg <- msg
 	}
 }
 
