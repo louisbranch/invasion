@@ -1,0 +1,8 @@
+namespace client;
+
+table Join {
+  name:string;
+  email:string;
+}
+
+root_type Join;

@@ -1,8 +1,13 @@
+include "ping.fbs";
+include "join.fbs";
+include "leave.fbs";
+
 namespace client;
 
-table Join {
-  name:string;
-  email:string;
+union Code { Ping, Join, Leave }
+
+table Message {
+  code:Code;
 }
 
-file_identifier "JOIN";
+root_type Message;

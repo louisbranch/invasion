@@ -1,70 +1,93 @@
 package main
 
 import (
+	"fmt"
+	"io/ioutil"
 	"log"
-	"net/http"
+	"os"
 
-	"github.com/luizbranco/invasion/internal/client"
-	"github.com/luizbranco/invasion/internal/server"
-	"github.com/luizbranco/invasion/internal/views"
-
-	"golang.org/x/net/websocket"
+	"github.com/google/flatbuffers/go"
+	"github.com/luizbranco/invasion/internal/protocol/client"
 )
 
-func Handler(s *server.Server, conn *websocket.Conn) {
-	clt := client.NewWsClient(conn)
-	for {
-		var data = make([]byte, 512) //FIXME msg limit
-		_, err := conn.Read(data)
+func main() {
+	j := join()
+	l := leave()
+	flags := os.O_CREATE | os.O_TRUNC | os.O_WRONLY
+
+	f1, err := os.OpenFile("join.dat", flags, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if _, err := f1.Write(j); err != nil {
+		log.Fatal(err)
+	}
+
+	f2, err := os.OpenFile("leave.dat", flags, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if _, err := f2.Write(l); err != nil {
+		log.Fatal(err)
+	}
+
+	for _, f := range []string{"join", "leave"} {
+		buf, err := ioutil.ReadFile(f + ".dat")
 		if err != nil {
-			break
+			log.Fatal(err)
 		}
-		s.Msg <- server.Message{Data: data, Client: clt}
+
+		msg := client.GetRootAsMessage(buf, 0)
+
+		switch msg.CodeType() {
+		case client.CodeJoin:
+			join := client.GetRootAsJoin(buf, 16)
+			name := join.Name()
+			fmt.Printf("Joined %s\n", name)
+		case client.CodeLeave:
+			leave := client.GetRootAsLeave(buf, 16)
+			token := leave.Token()
+			fmt.Printf("Joined %s\n", token)
+		default:
+			log.Fatal("Unknown")
+		}
 	}
 }
 
-func main() {
-	hub := server.NewHub()
+func join() []byte {
+	builder := flatbuffers.NewBuilder(0)
 
-	http.HandleFunc("/ws/", func(w http.ResponseWriter, r *http.Request) {
-		id := r.URL.Path[len("/ws/"):]
-		s, err := hub.GetServer(id)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusNotFound)
-			return
-		}
-		handler := websocket.Handler(func(conn *websocket.Conn) {
-			Handler(s, conn)
-		})
-		handler.ServeHTTP(w, r)
-	})
+	name := builder.CreateString("luiz")
+	email := builder.CreateString("me@luizbranco.com")
+	client.JoinStart(builder)
+	client.JoinAddName(builder, name)
+	client.JoinAddEmail(builder, email)
+	join := client.JoinEnd(builder)
 
-	http.HandleFunc("/join/", func(w http.ResponseWriter, r *http.Request) {
-		id := r.URL.Path[len("/join/"):]
-		switch r.Method {
-		case "GET":
-			_, err := hub.GetServer(id)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusNotFound)
-				return
-			}
-			views.Render(w, "game", nil)
-		default:
-			http.Error(w, "", http.StatusMethodNotAllowed)
-		}
-	})
+	client.MessageStart(builder)
+	client.MessageAddCodeType(builder, client.CodeJoin)
+	client.MessageAddCode(builder, join)
+	msg := client.MessageEnd(builder)
 
-	http.HandleFunc("/games/", func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case "POST":
-			id := hub.NewServer()
-			http.Redirect(w, r, "/join/"+id, 302)
-		case "GET":
-			views.Render(w, "games", hub.Status())
-		default:
-			http.Error(w, "", http.StatusMethodNotAllowed)
-		}
-	})
+	builder.Finish(msg)
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	return builder.FinishedBytes()
+}
+
+func leave() []byte {
+	builder := flatbuffers.NewBuilder(0)
+
+	name := builder.CreateString("SeCreTT")
+	client.LeaveStart(builder)
+	client.LeaveAddToken(builder, name)
+	leave := client.LeaveEnd(builder)
+
+	client.MessageStart(builder)
+	client.MessageAddCodeType(builder, client.CodeLeave)
+	client.MessageAddCode(builder, leave)
+	msg := client.MessageEnd(builder)
+
+	builder.Finish(msg)
+
+	return builder.FinishedBytes()
 }

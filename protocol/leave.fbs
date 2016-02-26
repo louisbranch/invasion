@@ -1,0 +1,7 @@
+namespace client;
+
+table Leave {
+  token:string;
+}
+
+root_type Leave;
