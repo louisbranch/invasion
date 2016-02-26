@@ -16,6 +16,7 @@ func NewWsClient(conn *websocket.Conn) *WebsocketClient {
 }
 
 func (c *WebsocketClient) Write(txt []byte) error {
+	//FIXME
 	return websocket.Message.Send(c.conn, string(txt))
 }
 

@@ -1,6 +1,8 @@
 namespace client;
 
-table joinRequest {
+table Join {
   name:string;
   email:string;
 }
+
+file_identifier "JOIN";
