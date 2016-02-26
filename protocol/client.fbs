@@ -1,0 +1,6 @@
+namespace client;
+
+table joinRequest {
+  name:string;
+  email:string;
+}
