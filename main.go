@@ -39,17 +39,21 @@ func main() {
 
 		msg := client.GetRootAsMessage(buf, 0)
 
-		switch msg.CodeType() {
-		case client.CodeJoin:
-			join := client.GetRootAsJoin(buf, 16)
-			name := join.Name()
-			fmt.Printf("Joined %s\n", name)
-		case client.CodeLeave:
-			leave := client.GetRootAsLeave(buf, 16)
-			token := leave.Token()
-			fmt.Printf("Joined %s\n", token)
-		default:
-			log.Fatal("Unknown")
+		unionTable := new(flatbuffers.Table)
+
+		if msg.Code(unionTable) {
+			switch msg.CodeType() {
+			case client.CodeJoin:
+				join := &client.Join{}
+				join.Init(unionTable.Bytes, unionTable.Pos)
+				fmt.Printf("Joined %s\n", join.Name())
+			case client.CodeLeave:
+				leave := &client.Leave{}
+				leave.Init(unionTable.Bytes, unionTable.Pos)
+				fmt.Printf("Left %s\n", leave.Token())
+			default:
+				log.Fatal("Unknown")
+			}
 		}
 	}
 }
