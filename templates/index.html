@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <script type="text/javascript" charset="utf-8" src="/assets/js/protocol/flatbuffers.js"></script>
+    <script type="text/javascript" charset="utf-8" src="/assets/js/protocol/client_generated.js"></script>
     <title>Invasion</title>
   </head>
   <body>
@@ -12,9 +14,30 @@
 
     <script type="text/javascript" charset="utf-8">
       (function(window, document) {
-        var ws = new WebSocket("ws://localhost:8080/ws/");
+        var ws = new WebSocket("ws://localhost:8080/ws");
         var log = document.getElementById("chat-log");
         var chat = document.getElementById("chat");
+
+        ws.addEventListener("open", function() {
+          var builder = new flatbuffers.Builder(0);
+          var name = builder.createString("luiz");
+          var email = builder.createString("me@luizbranco.com");
+          client.CreateAccount.startCreateAccount(builder);
+          client.CreateAccount.addName(builder, name);
+          client.CreateAccount.addEmail(builder, email);
+          var create = client.CreateAccount.endCreateAccount(builder);
+
+          client.Message.startMessage(builder);
+          client.Message.addRequestType(builder, client.Request.CreateAccount);
+          client.Message.addRequest(builder, create);
+          var msg = client.Message.endMessage(builder);
+
+          builder.finish(msg);
+
+          var buf =  builder.asUint8Array();
+
+          ws.send(buf);
+        });
 
         ws.addEventListener("message",function(event) {
           log.value += event.data + "\n";
@@ -22,6 +45,7 @@
 
         chat.addEventListener("keyup", function(event) {
           if (event.keyCode == 13 && chat.value.length != 0) {
+            ws.send(chat.value);
             chat.value = "";
           }
         });
