@@ -1,5 +1,38 @@
 namespace server;
 
-table joinResponse {
+union Response {
+  Error,
+  CreateAccount,
+  CreateGame,
+  ChatMessage
+}
+
+enum Code:uint {
+  InvalidMessage,
+  AuthorizationDenied,
+  InvalidEmail
+}
+
+table Error {
+  code:Code;
+  message:string;
+}
+
+table Message {
+  response:Response;
+}
+
+table CreateAccount {
   token:string;
 }
+
+table CreateGame {
+  game_id:string;
+}
+
+table ChatMessage {
+  name:string;
+  message:string;
+}
+
+root_type Message;

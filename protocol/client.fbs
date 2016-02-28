@@ -1,13 +1,37 @@
-include "ping.fbs";
-include "join.fbs";
-include "leave.fbs";
-
 namespace client;
 
-union Code { Ping, Join, Leave }
+union Request {
+  CreateAccount,
+  CreateGame,
+  JoinGame,
+  LeaveGame,
+  ChatMessage
+}
 
 table Message {
-  code:Code;
+  token:string;
+  request:Request;
+}
+
+table CreateAccount {
+  name:string;
+  email:string;
+}
+
+table CreateGame {}
+
+table JoinGame {
+  game_id:string;
+}
+
+table LeaveGame {
+  game_id:string;
+}
+
+table ChatMessage {
+  game_id:string;
+  message:string;
+  recipients:[string];
 }
 
 root_type Message;

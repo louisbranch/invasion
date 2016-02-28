@@ -1,6 +1,0 @@
-namespace client;
-
-table Ping {
-}
-
-root_type Ping;

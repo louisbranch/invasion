@@ -12,24 +12,16 @@
 
     <script type="text/javascript" charset="utf-8">
       (function(window, document) {
-        var url = document.location.pathname;
-        var id = url.split("/join/")[1];
-        var ws = new WebSocket("ws://localhost:8080/ws/"+id);
-
+        var ws = new WebSocket("ws://localhost:8080/ws/");
         var log = document.getElementById("chat-log");
+        var chat = document.getElementById("chat");
 
         ws.addEventListener("message",function(event) {
           log.value += event.data + "\n";
         });
 
-        ws.addEventListener("open",function(event) {
-          ws.send("0 ");
-        });
-
-        var chat = document.getElementById("chat");
         chat.addEventListener("keyup", function(event) {
           if (event.keyCode == 13 && chat.value.length != 0) {
-            ws.send("3 " + chat.value);
             chat.value = "";
           }
         });

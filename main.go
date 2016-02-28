@@ -1,16 +1,32 @@
 package main
 
 import (
-	"fmt"
-	"io/ioutil"
-	"log"
-	"os"
+	"net/http"
 
-	"github.com/google/flatbuffers/go"
-	"github.com/luizbranco/invasion/internal/protocol/client"
+	"github.com/luizbranco/invasion/internal/views"
+
+	"golang.org/x/net/websocket"
 )
 
+func echo(ws *websocket.Conn) {
+
+}
+
 func main() {
+	fs := http.FileServer(http.Dir("assets"))
+	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
+
+	http.Handle("/ws", websocket.Handler(echo))
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "GET" {
+			views.Render(w, "index", nil)
+		}
+	})
+}
+
+/*
+func notMain() {
 	j := join()
 	l := leave()
 	flags := os.O_CREATE | os.O_TRUNC | os.O_WRONLY
@@ -95,3 +111,4 @@ func leave() []byte {
 
 	return builder.FinishedBytes()
 }
+*/
