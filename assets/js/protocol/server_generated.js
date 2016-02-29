@@ -20,9 +20,12 @@ server.Response = {
  * @enum
  */
 server.Code = {
-  InvalidMessage: 0,
-  AuthorizationDenied: 1,
-  InvalidEmail: 2
+  BadRequest: 0,
+  InvalidRequestType: 1,
+  AuthorizationDenied: 2,
+  InvalidEmail: 3,
+  EmailAlreadyInUse: 4,
+  GameNotFound: 5
 };
 
 /**
@@ -65,14 +68,14 @@ server.Error.getRootAsError = function(bb, obj) {
  */
 server.Error.prototype.code = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? /** @type {server.Code} */ (this.bb.readUint32(this.bb_pos + offset)) : server.Code.InvalidMessage;
+  return offset ? /** @type {server.Code} */ (this.bb.readUint32(this.bb_pos + offset)) : server.Code.BadRequest;
 };
 
 /**
  * @param {flatbuffers.Encoding=} optionalEncoding
  * @returns {string|Uint8Array}
  */
-server.Error.prototype.message = function(optionalEncoding) {
+server.Error.prototype.description = function(optionalEncoding) {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
 };
@@ -89,15 +92,15 @@ server.Error.startError = function(builder) {
  * @param {server.Code} code
  */
 server.Error.addCode = function(builder, code) {
-  builder.addFieldInt32(0, code, server.Code.InvalidMessage);
+  builder.addFieldInt32(0, code, server.Code.BadRequest);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} messageOffset
+ * @param {flatbuffers.Offset} descriptionOffset
  */
-server.Error.addMessage = function(builder, messageOffset) {
-  builder.addFieldOffset(1, messageOffset, 0);
+server.Error.addDescription = function(builder, descriptionOffset) {
+  builder.addFieldOffset(1, descriptionOffset, 0);
 };
 
 /**

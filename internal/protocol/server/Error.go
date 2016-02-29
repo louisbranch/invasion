@@ -22,7 +22,7 @@ func (rcv *Error) Code() uint32 {
 	return 0
 }
 
-func (rcv *Error) Message() []byte {
+func (rcv *Error) Description() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
@@ -32,5 +32,5 @@ func (rcv *Error) Message() []byte {
 
 func ErrorStart(builder *flatbuffers.Builder) { builder.StartObject(2) }
 func ErrorAddCode(builder *flatbuffers.Builder, code uint32) { builder.PrependUint32Slot(0, code, 0) }
-func ErrorAddMessage(builder *flatbuffers.Builder, message flatbuffers.UOffsetT) { builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(message), 0) }
+func ErrorAddDescription(builder *flatbuffers.Builder, description flatbuffers.UOffsetT) { builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(description), 0) }
 func ErrorEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT { return builder.EndObject() }

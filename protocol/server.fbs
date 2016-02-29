@@ -8,14 +8,19 @@ union Response {
 }
 
 enum Code:uint {
-  InvalidMessage,
+  BadRequest,
+  InvalidRequestType,
+
   AuthorizationDenied,
-  InvalidEmail
+  InvalidEmail,
+  EmailAlreadyInUse,
+
+  GameNotFound
 }
 
 table Error {
   code:Code;
-  message:string;
+  description:string;
 }
 
 table Message {

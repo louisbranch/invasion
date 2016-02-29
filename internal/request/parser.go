@@ -4,6 +4,8 @@ import (
 	"github.com/google/flatbuffers/go"
 	clt "github.com/luizbranco/invasion/internal/client"
 	"github.com/luizbranco/invasion/internal/protocol/client"
+	"github.com/luizbranco/invasion/internal/protocol/server"
+	"github.com/luizbranco/invasion/internal/response"
 )
 
 type Request struct {
@@ -14,7 +16,7 @@ type Request struct {
 	Client clt.Client
 }
 
-func New(data []byte, c clt.Client) (Request, error) {
+func Parse(data []byte, c clt.Client) (res response.Response) {
 	req := Request{Data: data, Client: c}
 
 	msg := client.GetRootAsMessage(data, 0)
@@ -22,29 +24,29 @@ func New(data []byte, c clt.Client) (Request, error) {
 	defer func() {
 		err := recover()
 		if err != nil {
-			//TODO invalid format
+			res = response.NewError(server.CodeBadRequest, "invalid request format")
+			return
 		}
 	}()
 
-	unionTable := new(flatbuffers.Table)
+	unionTable := &flatbuffers.Table{}
 
-	if msg.Request(unionTable) {
-		req.Type = msg.RequestType()
-
-		switch msg.RequestType() {
-		case client.RequestCreateAccount:
-			acc := &client.CreateAccount{}
-			acc.Init(unionTable.Bytes, unionTable.Pos)
-		case client.RequestCreateGame:
-
-		default:
-			//TODO extract token and game id
-		}
-	} else {
-		//TODO
+	if !msg.Request(unionTable) {
+		return response.NewError(server.CodeInvalidRequestType, "request type is not valid")
 	}
 
-	return req, nil
+	req.Type = msg.RequestType()
+
+	switch msg.RequestType() {
+	case client.RequestCreateAccount:
+		res = parseCreateAccount(unionTable)
+	case client.RequestCreateGame:
+		//TODO
+	default:
+		res = parseGameRequest(msg, unionTable)
+	}
+
+	return res
 }
 
 func ChatMessage() {
@@ -66,4 +68,31 @@ func ChatMessage() {
 		builder.Finish(msg)
 		websocket.Message.Send(ws, builder.FinishedBytes())
 	*/
+}
+
+func parseCreateAccount(unionTable *flatbuffers.Table) response.Response {
+	acc := &client.CreateAccount{}
+	acc.Init(unionTable.Bytes, unionTable.Pos)
+	email := string(acc.Email())
+	if email == "" {
+		return response.NewError(server.CodeInvalidEmail, "email is invalid")
+	}
+	//TODO validate duplicated email
+	//TODO create account and send response
+	return nil
+}
+
+func parseGameRequest(msg *client.Message, unionTable *flatbuffers.Table) response.Response {
+	token := string(msg.Token())
+	if token == "" {
+		return response.NewError(server.CodeAuthorizationDenied, "token is invalid")
+	}
+	//TODO validate token
+
+	id := string(msg.GameId())
+	if id == "" {
+		return response.NewError(server.CodeGameNotFound, "game_id is invalid")
+	}
+	//TODO find game and send request
+	return nil
 }

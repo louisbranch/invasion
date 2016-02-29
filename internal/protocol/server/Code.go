@@ -3,7 +3,10 @@
 package server
 
 const (
-	CodeInvalidMessage = 0
-	CodeAuthorizationDenied = 1
-	CodeInvalidEmail = 2
+	CodeBadRequest = 0
+	CodeInvalidRequestType = 1
+	CodeAuthorizationDenied = 2
+	CodeInvalidEmail = 3
+	CodeEmailAlreadyInUse = 4
+	CodeGameNotFound = 5
 )
