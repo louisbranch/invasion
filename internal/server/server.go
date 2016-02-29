@@ -4,29 +4,25 @@ import (
 	"time"
 
 	"github.com/luizbranco/invasion/internal/client"
+	"github.com/luizbranco/invasion/internal/request"
 )
-
-type Message struct {
-	Data   []byte
-	Client client.Client
-}
 
 type Server struct {
 	clients   []client.Client
 	createdAt time.Time
-	Msg       chan Message
+	In        chan request.Request
 }
 
 func newServer() *Server {
 	return &Server{
 		createdAt: time.Now(),
-		Msg:       make(chan Message),
+		In:        make(chan request.Request),
 	}
 }
 
 func (s *Server) run() {
 	for {
-		_, ok := <-s.Msg
+		_, ok := <-s.In
 		if !ok {
 			break
 		}
@@ -34,6 +30,7 @@ func (s *Server) run() {
 }
 
 func (s *Server) addClient(c client.Client) {
+	//TODO check for duplicated clients, remove old one (?)
 }
 
 func (s *Server) removeClient(c client.Client) {

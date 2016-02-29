@@ -14,14 +14,5 @@ func (rcv *JoinGame) Init(buf []byte, i flatbuffers.UOffsetT) {
 	rcv._tab.Pos = i
 }
 
-func (rcv *JoinGame) GameId() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
-	if o != 0 {
-		return rcv._tab.ByteVector(o + rcv._tab.Pos)
-	}
-	return nil
-}
-
-func JoinGameStart(builder *flatbuffers.Builder) { builder.StartObject(1) }
-func JoinGameAddGameId(builder *flatbuffers.Builder, gameId flatbuffers.UOffsetT) { builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(gameId), 0) }
+func JoinGameStart(builder *flatbuffers.Builder) { builder.StartObject(0) }
 func JoinGameEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT { return builder.EndObject() }

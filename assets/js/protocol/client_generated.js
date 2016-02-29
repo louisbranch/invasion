@@ -62,10 +62,19 @@ client.Message.prototype.token = function(optionalEncoding) {
 };
 
 /**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+client.Message.prototype.gameId = function(optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
  * @returns {client.Request}
  */
 client.Message.prototype.requestType = function() {
-  var offset = this.bb.__offset(this.bb_pos, 6);
+  var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? /** @type {client.Request} */ (this.bb.readUint8(this.bb_pos + offset)) : client.Request.NONE;
 };
 
@@ -74,7 +83,7 @@ client.Message.prototype.requestType = function() {
  * @returns {?flatbuffers.Table}
  */
 client.Message.prototype.request = function(obj) {
-  var offset = this.bb.__offset(this.bb_pos, 8);
+  var offset = this.bb.__offset(this.bb_pos, 10);
   return offset ? this.bb.__union(obj, this.bb_pos + offset) : null;
 };
 
@@ -82,7 +91,7 @@ client.Message.prototype.request = function(obj) {
  * @param {flatbuffers.Builder} builder
  */
 client.Message.startMessage = function(builder) {
-  builder.startObject(3);
+  builder.startObject(4);
 };
 
 /**
@@ -95,10 +104,18 @@ client.Message.addToken = function(builder, tokenOffset) {
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} gameIdOffset
+ */
+client.Message.addGameId = function(builder, gameIdOffset) {
+  builder.addFieldOffset(1, gameIdOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @param {client.Request} requestType
  */
 client.Message.addRequestType = function(builder, requestType) {
-  builder.addFieldInt8(1, requestType, client.Request.NONE);
+  builder.addFieldInt8(2, requestType, client.Request.NONE);
 };
 
 /**
@@ -106,7 +123,7 @@ client.Message.addRequestType = function(builder, requestType) {
  * @param {flatbuffers.Offset} requestOffset
  */
 client.Message.addRequest = function(builder, requestOffset) {
-  builder.addFieldOffset(2, requestOffset, 0);
+  builder.addFieldOffset(3, requestOffset, 0);
 };
 
 /**
@@ -298,27 +315,10 @@ client.JoinGame.getRootAsJoinGame = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.Encoding=} optionalEncoding
- * @returns {string|Uint8Array}
- */
-client.JoinGame.prototype.gameId = function(optionalEncoding) {
-  var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-};
-
-/**
  * @param {flatbuffers.Builder} builder
  */
 client.JoinGame.startJoinGame = function(builder) {
-  builder.startObject(1);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} gameIdOffset
- */
-client.JoinGame.addGameId = function(builder, gameIdOffset) {
-  builder.addFieldOffset(0, gameIdOffset, 0);
+  builder.startObject(0);
 };
 
 /**
@@ -366,27 +366,10 @@ client.LeaveGame.getRootAsLeaveGame = function(bb, obj) {
 };
 
 /**
- * @param {flatbuffers.Encoding=} optionalEncoding
- * @returns {string|Uint8Array}
- */
-client.LeaveGame.prototype.gameId = function(optionalEncoding) {
-  var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-};
-
-/**
  * @param {flatbuffers.Builder} builder
  */
 client.LeaveGame.startLeaveGame = function(builder) {
-  builder.startObject(1);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} gameIdOffset
- */
-client.LeaveGame.addGameId = function(builder, gameIdOffset) {
-  builder.addFieldOffset(0, gameIdOffset, 0);
+  builder.startObject(0);
 };
 
 /**
@@ -437,17 +420,8 @@ client.ChatMessage.getRootAsChatMessage = function(bb, obj) {
  * @param {flatbuffers.Encoding=} optionalEncoding
  * @returns {string|Uint8Array}
  */
-client.ChatMessage.prototype.gameId = function(optionalEncoding) {
-  var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-};
-
-/**
- * @param {flatbuffers.Encoding=} optionalEncoding
- * @returns {string|Uint8Array}
- */
 client.ChatMessage.prototype.message = function(optionalEncoding) {
-  var offset = this.bb.__offset(this.bb_pos, 6);
+  var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
 };
 
@@ -457,7 +431,7 @@ client.ChatMessage.prototype.message = function(optionalEncoding) {
  * @returns {string|Uint8Array}
  */
 client.ChatMessage.prototype.recipients = function(index, optionalEncoding) {
-  var offset = this.bb.__offset(this.bb_pos, 8);
+  var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.__string(this.bb.__vector(this.bb_pos + offset) + index * 4, optionalEncoding) : null;
 };
 
@@ -465,7 +439,7 @@ client.ChatMessage.prototype.recipients = function(index, optionalEncoding) {
  * @returns {number}
  */
 client.ChatMessage.prototype.recipientsLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 8);
+  var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -473,15 +447,7 @@ client.ChatMessage.prototype.recipientsLength = function() {
  * @param {flatbuffers.Builder} builder
  */
 client.ChatMessage.startChatMessage = function(builder) {
-  builder.startObject(3);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} gameIdOffset
- */
-client.ChatMessage.addGameId = function(builder, gameIdOffset) {
-  builder.addFieldOffset(0, gameIdOffset, 0);
+  builder.startObject(2);
 };
 
 /**
@@ -489,7 +455,7 @@ client.ChatMessage.addGameId = function(builder, gameIdOffset) {
  * @param {flatbuffers.Offset} messageOffset
  */
 client.ChatMessage.addMessage = function(builder, messageOffset) {
-  builder.addFieldOffset(1, messageOffset, 0);
+  builder.addFieldOffset(0, messageOffset, 0);
 };
 
 /**
@@ -497,7 +463,7 @@ client.ChatMessage.addMessage = function(builder, messageOffset) {
  * @param {flatbuffers.Offset} recipientsOffset
  */
 client.ChatMessage.addRecipients = function(builder, recipientsOffset) {
-  builder.addFieldOffset(2, recipientsOffset, 0);
+  builder.addFieldOffset(1, recipientsOffset, 0);
 };
 
 /**

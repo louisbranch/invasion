@@ -10,6 +10,7 @@ union Request {
 
 table Message {
   token:string;
+  game_id:string;
   request:Request;
 }
 
@@ -20,16 +21,11 @@ table CreateAccount {
 
 table CreateGame {}
 
-table JoinGame {
-  game_id:string;
-}
+table JoinGame {}
 
-table LeaveGame {
-  game_id:string;
-}
+table LeaveGame {}
 
 table ChatMessage {
-  game_id:string;
   message:string;
   recipients:[string];
 }
