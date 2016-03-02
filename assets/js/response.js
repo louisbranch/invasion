@@ -1,6 +1,5 @@
 function Response() {
   this._builder = new flatbuffers.Builder(0);
-
 };
 
 Response.prototype.createAccount = function(name, email) {

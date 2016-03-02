@@ -5,7 +5,7 @@
   </head>
   <body>
     <h1>Invasion</h1>
-    <template>
+    <script type="x-template" id='template-chat'>
       <ul>
         <li v-for="msg in log">
           <strong>${msg.name}</strong>
@@ -13,9 +13,8 @@
         </li>
       </ul>
       <input type="text" name="message" v-model="msg" @keyup.enter="send" placeholder="type your msg...">
-    </template>
-    <div id="chat">
-    </div>
+    </script>
+    <div id="chat"></div>
     <script type="text/javascript" charset="utf-8" src="/assets/dist/main.js"></script>
   </body>
 </html>

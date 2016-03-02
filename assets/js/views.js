@@ -3,6 +3,7 @@ var game = new Game();
 Vue.config.delimiters = ['${', '}'];
 
 var ChatView = Vue.extend({
+  template: '#template-chat',
   init: function() {
     var view = this;
     game.events.on('chat.message', function(msg) {
@@ -11,10 +12,11 @@ var ChatView = Vue.extend({
   },
   methods: {
     send: function() {
-      console.log('send');
+      var msg = this.msg.trim();
+      if (msg.length === 0) return;
       var res = new Response();
-      res.createChatMessage(this.msg);
-      this.log.push({name: 'luiz', content: this.msg});
+      res.createChatMessage(msg);
+      this.log.push({name: 'luiz', content: msg});
       this.msg = '';
     }
   }
@@ -23,10 +25,10 @@ var ChatView = Vue.extend({
 game.events.on('join.game', function() {
   var chat = new ChatView({
     el: '#chat',
+    replace: false,
     data: {
       log: [],
       msg: ''
     }
   });
 });
-
