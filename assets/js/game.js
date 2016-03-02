@@ -1,7 +1,11 @@
 (function(window, document) {
+
+  var Response = new window.EventEmitter();
+
+  var Vue = window.Vue;
   var ws = new WebSocket("ws://localhost:8080/ws");
-  var log = document.getElementById("chat-log");
-  var chat = document.getElementById("chat");
+
+  Vue.config.delimiters = ['${', '}'];
 
   ws.addEventListener("open", function() {
     var buf = createAccount("luiz", "me@luizbranco.com");
@@ -23,7 +27,7 @@
         switch (unionType) {
           case server.Response.ChatMessage:
             var c = msg.response(new server.ChatMessage());
-            log.value += c.message() + "\n";
+            Response.trigger('chat.message', c.message());
             break;
           default:
             console.log("Unknown respose type", unionType);
@@ -32,15 +36,6 @@
     }
 
     fileReader.readAsArrayBuffer(event.data);
-  });
-
-  chat.addEventListener("keyup", function(event) {
-    var val = chat.value.trim();
-    if (event.keyCode == 13 && val.length != 0) {
-      var buf = createChatMessage("", "", val);
-      ws.send(buf);
-      chat.value = "";
-    }
   });
 
   function createAccount(name, email) {
@@ -61,18 +56,16 @@
     return finishMessage(builder, req, client.Request.CreateGame);
   }
 
-  function createChatMessage(token, gameId, content) {
+  function createChatMessage(content) {
     var builder = new flatbuffers.Builder(0);
-    var id = builder.createString(gameId);
     var txt = builder.createString(content);
     client.ChatMessage.startChatMessage(builder);
-    client.ChatMessage.addGameId(builder, id);
     client.ChatMessage.addMessage(builder, txt);
     var req = client.ChatMessage.endChatMessage(builder);
     return finishMessage(builder, req, client.Request.ChatMessage);
   }
 
-  function finishMessage(builder, req, reqType) {
+  function finishMessage(builder, req, type) {
     client.Message.startMessage(builder);
     client.Message.addRequestType(builder, type);
     client.Message.addRequest(builder, req);
@@ -80,5 +73,28 @@
     builder.finish(msg);
     return builder.asUint8Array();
   }
+
+
+  var chatLog = [];
+
+  new Vue({
+    el: '#chat',
+    init: function() {
+      var view = this;
+      Response.on('chat.message', function(msg) {
+        view.log.push({name: 'Luiz', content: msg});
+      });
+    },
+    data: {
+      log: [],
+      msg: ''
+    },
+    methods: {
+      send: function() {
+        createChatMessage(this.msg);
+        this.msg = '';
+      }
+    }
+  });
 
 }(window, document));

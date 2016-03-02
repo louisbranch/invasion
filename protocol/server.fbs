@@ -24,6 +24,7 @@ table Error {
 }
 
 table Message {
+  id:string;
   response:Response;
 }
 

@@ -1,17 +1,21 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script type="text/javascript" charset="utf-8" src="/assets/js/protocol/flatbuffers.js"></script>
-    <script type="text/javascript" charset="utf-8" src="/assets/js/protocol/client_generated.js"></script>
-    <script type="text/javascript" charset="utf-8" src="/assets/js/protocol/server_generated.js"></script>
     <title>Invasion</title>
   </head>
   <body>
     <h1>Invasion</h1>
-    <div>
-      <textarea id="chat-log" rows="8" cols="40" disabled></textarea>
-      <input type="text" name="message" id="chat" placeholder="type your msg...">
+    <div id="chat">
+      <ul>
+        <template v-for="msg in log">
+          <li>
+            <strong>${msg.name}</strong>
+            ${msg.content}
+          </li>
+        </template>
+      </ul>
+      <input type="text" name="message" v-model="msg" @keyup.enter="send" placeholder="type your msg...">
     </div>
-    <script type="text/javascript" charset="utf-8" src="/assets/js/game.js"></script>
+    <script type="text/javascript" charset="utf-8" src="/assets/dist/main.js"></script>
   </body>
 </html>
