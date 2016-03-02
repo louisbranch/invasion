@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"path"
 
 	"github.com/luizbranco/invasion/internal/client"
 	"github.com/luizbranco/invasion/internal/request"
@@ -27,8 +28,8 @@ func handler(ws *websocket.Conn) {
 }
 
 func main() {
-	fs := http.FileServer(http.Dir("assets"))
-	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
+	fs := http.FileServer(http.Dir(path.Join("assets", "dist")))
+	http.Handle("/assets/dist/", http.StripPrefix("/assets/dist/", fs))
 
 	http.Handle("/ws", websocket.Handler(handler))
 
