@@ -5,16 +5,16 @@
   </head>
   <body>
     <h1>Invasion</h1>
-    <div id="chat">
+    <template>
       <ul>
-        <template v-for="msg in log">
-          <li>
-            <strong>${msg.name}</strong>
-            ${msg.content}
-          </li>
-        </template>
+        <li v-for="msg in log">
+          <strong>${msg.name}</strong>
+          ${msg.content}
+        </li>
       </ul>
       <input type="text" name="message" v-model="msg" @keyup.enter="send" placeholder="type your msg...">
+    </template>
+    <div id="chat">
     </div>
     <script type="text/javascript" charset="utf-8" src="/assets/dist/main.js"></script>
   </body>
