@@ -1,9 +1,14 @@
+/* globals Game, Vue, Response */
 var game = new Game();
 
 Vue.config.delimiters = ['${', '}'];
 
 var ChatView = Vue.extend({
   template: '#template-chat',
+  replace: false,
+  data: function() {
+    return { log: [], msg: '' };
+  },
   init: function() {
     var view = this;
     game.events.on('chat.message', function(msg) {
@@ -23,12 +28,6 @@ var ChatView = Vue.extend({
 });
 
 game.events.on('join.game', function() {
-  var chat = new ChatView({
-    el: '#chat',
-    replace: false,
-    data: {
-      log: [],
-      msg: ''
-    }
-  });
+  var chat = new ChatView();
+  chat.$mount('#chat');
 });
