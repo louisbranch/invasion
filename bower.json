@@ -1,0 +1,8 @@
+{
+  "name": "invasion",
+  "dependencies": {
+    "flatbuffers": "https://raw.githubusercontent.com/google/flatbuffers/master/js/flatbuffers.js",
+    "EventEmitter": "https://raw.githubusercontent.com/Olical/EventEmitter/master/EventEmitter.js",
+    "vue": "^1.0.17"
+  }
+}

@@ -1,8 +1,9 @@
 js_dir = assets/js
+js_lib_dir = bower_components
 
-js_files = $(js_dir)/lib/flatbuffers.js\
-					 $(js_dir)/lib/vue.js\
-					 $(js_dir)/lib/EventEmitter.js\
+js_files = $(js_lib_dir)/flatbuffers/index.js\
+					 $(js_lib_dir)/vue/dist/vue.js\
+					 $(js_lib_dir)/EventEmitter/index.js\
 					 $(js_dir)/protocol/client_generated.js\
 					 $(js_dir)/protocol/server_generated.js\
 					 $(js_dir)/game.js\
